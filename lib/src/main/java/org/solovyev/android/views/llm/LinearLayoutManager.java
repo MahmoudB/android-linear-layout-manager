@@ -228,35 +228,40 @@ public class LinearLayoutManager extends android.support.v7.widget.LinearLayoutM
 	}
 
 	private void measureChild(RecyclerView.Recycler recycler, int position, int widthSize, int heightSize, int[] dimensions) {
-		final View child = recycler.getViewForPosition(position);
+        try{
+            final View child = recycler.getViewForPosition(position);
 
-		final RecyclerView.LayoutParams p = (RecyclerView.LayoutParams) child.getLayoutParams();
+            final RecyclerView.LayoutParams p = (RecyclerView.LayoutParams) child.getLayoutParams();
 
-		final int hPadding = getPaddingLeft() + getPaddingRight();
-		final int vPadding = getPaddingTop() + getPaddingBottom();
+            final int hPadding = getPaddingLeft() + getPaddingRight();
+            final int vPadding = getPaddingTop() + getPaddingBottom();
 
-		final int hMargin = p.leftMargin + p.rightMargin;
-		final int vMargin = p.topMargin + p.bottomMargin;
+            final int hMargin = p.leftMargin + p.rightMargin;
+            final int vMargin = p.topMargin + p.bottomMargin;
 
-		// we must make insets dirty in order calculateItemDecorationsForChild to work
-		makeInsetsDirty(p);
-		// this method should be called before any getXxxDecorationXxx() methods
-		calculateItemDecorationsForChild(child, tmpRect);
+            // we must make insets dirty in order calculateItemDecorationsForChild to work
+            makeInsetsDirty(p);
+            // this method should be called before any getXxxDecorationXxx() methods
+            calculateItemDecorationsForChild(child, tmpRect);
 
-		final int hDecoration = getRightDecorationWidth(child) + getLeftDecorationWidth(child);
-		final int vDecoration = getTopDecorationHeight(child) + getBottomDecorationHeight(child);
+            final int hDecoration = getRightDecorationWidth(child) + getLeftDecorationWidth(child);
+            final int vDecoration = getTopDecorationHeight(child) + getBottomDecorationHeight(child);
 
-		final int childWidthSpec = getChildMeasureSpec(widthSize, hPadding + hMargin + hDecoration, p.width, canScrollHorizontally());
-		final int childHeightSpec = getChildMeasureSpec(heightSize, vPadding + vMargin + vDecoration, p.height, canScrollVertically());
+            final int childWidthSpec = getChildMeasureSpec(widthSize, hPadding + hMargin + hDecoration, p.width, canScrollHorizontally());
+            final int childHeightSpec = getChildMeasureSpec(heightSize, vPadding + vMargin + vDecoration, p.height, canScrollVertically());
 
-		child.measure(childWidthSpec, childHeightSpec);
+            child.measure(childWidthSpec, childHeightSpec);
 
-		dimensions[CHILD_WIDTH] = getDecoratedMeasuredWidth(child) + p.leftMargin + p.rightMargin;
-		dimensions[CHILD_HEIGHT] = getDecoratedMeasuredHeight(child) + p.bottomMargin + p.topMargin;
+            dimensions[CHILD_WIDTH] = getDecoratedMeasuredWidth(child) + p.leftMargin + p.rightMargin;
+            dimensions[CHILD_HEIGHT] = getDecoratedMeasuredHeight(child) + p.bottomMargin + p.topMargin;
 
-		// as view is recycled let's not keep old measured values
-		makeInsetsDirty(p);
-		recycler.recycleView(child);
+            // as view is recycled let's not keep old measured values
+            makeInsetsDirty(p);
+            recycler.recycleView(child);
+        } catch (IndexOutOfBoundsException e) {
+            Log.d(TAG, "Inconsistency detected. Invalid item "
+                    + "position " + position);
+        }
 	}
 
 	private static void makeInsetsDirty(RecyclerView.LayoutParams p) {
